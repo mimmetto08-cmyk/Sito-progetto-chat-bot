@@ -1,0 +1,550 @@
+/*
+DISCLAIMER
+per cose come animazioni brevi o icone ho usato Claude visto che non mi paga nessuno 
+*/
+
+/*proprietà(sarebbero tutte le variabili usate raggruppate qua per poterle modificare più facilmente)*/
+:root {
+  --bg-base:        #0f0f11;
+  --bg-surface:     #17171a;
+  --bg-elevated:    #1e1e23;
+  --bg-hover:       #26262c;
+  --border:         rgba(255,255,255,0.07);
+  --border-active:  rgba(255,255,255,0.15);
+
+  --text-primary:   #f0f0f2;
+  --text-secondary: #8e8e99;
+  --text-muted:     #55555f;
+
+  --accent-from:    #6c63ff;
+  --accent-to:      #a78bfa;
+  --accent-solid:   #7c6ff7;
+  --accent-glow:    rgba(108, 99, 255, 0.25);
+
+  --user-bg:        #23232a;
+  --ai-bg:          #1a1a20;
+
+  --scrollbar-track: #17171a;
+  --scrollbar-thumb: #2e2e36;
+
+  --shadow-sm:   0 1px 3px rgba(0,0,0,0.4);
+  --shadow-md:   0 4px 16px rgba(0,0,0,0.5);
+  --shadow-glow: 0 0 24px var(--accent-glow);
+
+  --radius-sm:  6px;
+  --radius-md:  12px;
+  --radius-lg:  18px;
+  --radius-xl:  24px;
+  --radius-full: 99px;
+
+  --topbar-h:   58px;
+  --ctrl-size:  40px;
+
+  --font-sans:  'Outfit', sans-serif;
+  --font-serif: 'Lora', serif;
+  --font-mono:  'DM Mono', monospace;
+
+  --transition: 0.2s ease;
+}
+
+[data-theme="light"] {
+  --bg-base:        #f5f5f7;
+  --bg-surface:     #ffffff;
+  --bg-elevated:    #ebebf0;
+  --bg-hover:       #e2e2e9;
+  --border:         rgba(0,0,0,0.08);
+  --border-active:  rgba(0,0,0,0.18);
+
+  --text-primary:   #111116;
+  --text-secondary: #5a5a68;
+  --text-muted:     #9999aa;
+
+  --accent-from:    #5b52e8;
+  --accent-to:      #8b6cf5;
+  --accent-solid:   #6458e6;
+  --accent-glow:    rgba(91, 82, 232, 0.18);
+
+  --user-bg:        #e8e8f0;
+  --ai-bg:          #ffffff;
+
+  --scrollbar-track: #f0f0f3;
+  --scrollbar-thumb: #c8c8d4;
+
+  --shadow-sm:   0 1px 3px rgba(0,0,0,0.08);
+  --shadow-md:   0 4px 16px rgba(0,0,0,0.1);
+  --shadow-glow: 0 0 24px var(--accent-glow);
+}
+
+/* reset e base*/
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { font-size: 15px; }
+
+body {
+  font-family: var(--font-sans);
+  background: var(--bg-base);
+  color: var(--text-primary);
+  display: flex;
+  flex-direction: column;
+  height: 100dvh;
+  overflow: hidden;
+  transition: background var(--transition), color var(--transition);
+}
+/*scroll bar*/
+::-webkit-scrollbar { width: 5px; }
+::-webkit-scrollbar-track { background: var(--scrollbar-track); }
+::-webkit-scrollbar-thumb { background: var(--scrollbar-thumb); border-radius: 99px; }
+
+/* tob bar (sarebbe l'icona di gemini+Ector*/
+.topbar {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  height: var(--topbar-h);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg-base);
+  border-bottom: 1px solid var(--border);
+  z-index: 50;
+  transition: background var(--transition), border-color var(--transition);
+}
+
+.topbar-logo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.logo-icon {
+  font-size: 1.25rem;
+  background: linear-gradient(135deg, var(--accent-from), var(--accent-to));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  line-height: 1;
+}
+
+.logo-text {
+  font-size: 1rem;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  color: var(--text-primary);
+}
+
+/* bottoni del cambio tema e della nuova chat*/
+.floating-controls {
+  position: fixed;
+  top: 9px;
+  left: 12px;
+  z-index: 100;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.ctrl-btn {
+  width: var(--ctrl-size);
+  height: var(--ctrl-size);
+  border-radius: var(--radius-sm);
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  color: var(--text-secondary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background var(--transition), border-color var(--transition),
+              color var(--transition), transform 0.15s ease;
+  box-shadow: var(--shadow-sm);
+}
+
+.ctrl-btn:hover {
+  background: var(--bg-hover);
+  border-color: var(--border-active);
+  color: var(--text-primary);
+  transform: scale(1.05);
+}
+
+/* icone del cambio tema (si avevo tempo da perdere*/
+.icon-sun, .icon-moon { display: none; pointer-events: none; }
+
+[data-theme="dark"]  .icon-sun  { display: block; }
+[data-theme="light"] .icon-moon { display: block; }
+
+/* main(sarebbe la schermata principale)*/
+.main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  margin-top: var(--topbar-h);
+}
+
+/*welcome screen?penso che non ha senso scrivere certi commenti poi mi ricordo che asta mi chiederà di vedere il codice*/
+.welcome-screen {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  padding: 52px 24px 24px;
+  text-align: center;
+  animation: fadeUp 0.5s ease both;
+}
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+/*POWERED BY GEMINI fighissimo bellissimo*/
+.welcome-badge {
+  display: inline-block;
+  font-size: 0.72rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: var(--accent-solid);
+  background: var(--accent-glow);
+  border: 1px solid rgba(108,99,255,0.22);
+  padding: 5px 16px;
+  border-radius: var(--radius-full);
+  margin-bottom: 22px;
+}
+/*Ciao come posso aiutarti*/
+.welcome-title {
+  font-family: var(--font-serif);
+  font-size: clamp(2rem, 5vw, 3rem);
+  font-weight: 600;
+  letter-spacing: -0.03em;
+  line-height: 1.15;
+  color: var(--text-primary);
+  margin-bottom: 14px;
+}
+/*La scritta sotto*/
+.welcome-subtitle {
+  font-size: 0.95rem;
+  color: var(--text-secondary);
+  max-width: 400px;
+  line-height: 1.65;
+}
+
+/*Zona della chat*/
+.chat-container {
+  flex: 1;
+  overflow-y: auto;
+  display: none;
+  flex-direction: column;
+}
+
+.chat-container.visible { display: flex; }
+/*centra i messaggi*/
+.messages-list {
+  max-width: 760px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 24px 24px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+/* messaggi*/
+.message {
+  display: flex;
+  gap: 12px;
+  padding: 14px 0;
+  animation: messageIn 0.28s ease both;
+}
+
+@keyframes messageIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.message.user { flex-direction: row-reverse; }
+/*icona del messaggio*/
+.message-avatar {
+  width: 32px;
+  height: 32px;
+  min-width: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.78rem;
+  font-weight: 600;
+  margin-top: 2px;
+}
+/*mesaggio dell'utente, con sfondo e tutto il resto*/
+.message.user .message-avatar {
+  background: linear-gradient(135deg, var(--accent-from), var(--accent-to));
+  color: #fff;
+}
+/*messaggio del chatbot, direttamente sullo sfondo*/
+.message.ai .message-avatar {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  color: var(--accent-solid);
+  font-size: 1rem;
+}
+
+.message-body  { flex: 1; min-width: 0; }
+
+.message-name {
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+  margin-bottom: 6px;
+}
+
+.message.user .message-name { text-align: right; }
+
+.message-content {
+  font-size: 0.9rem;
+  line-height: 1.7;
+  color: var(--text-primary);
+  word-break: break-word;
+}
+
+.message.user .message-content {
+  background: var(--user-bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md) var(--radius-sm) var(--radius-md) var(--radius-md);
+  padding: 11px 15px;
+  display: inline-block;
+  max-width: 80%;
+  float: right;
+  clear: both;
+}
+
+/*anteprima immagini nei messaggi */
+.message-image {
+  max-width: 260px;
+  max-height: 200px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border);
+  margin-bottom: 6px;
+  display: block;
+}
+
+/*eventuali bordi dei messaggi tipo per quando genera codice(credo questo devo chiederlo a Claude)*/
+.message.ai .message-content pre {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 12px 14px;
+  overflow-x: auto;
+  margin: 10px 0;
+  font-family: var(--font-mono);
+  font-size: 0.82rem;
+  line-height: 1.5;
+}
+
+.message.ai .message-content code {
+  font-family: var(--font-mono);
+  font-size: 0.82rem;
+  background: var(--bg-elevated);
+  padding: 1px 5px;
+  border-radius: 4px;
+  color: var(--accent-to);
+}
+
+.message.ai .message-content pre code {
+  background: transparent;
+  padding: 0;
+  color: var(--text-primary);
+}
+
+/*tre puntini quando l'ia "pensa"*/
+.typing-indicator {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 8px 2px;
+}
+
+.typing-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--accent-solid);
+  opacity: 0.5;
+  animation: typingBounce 1.2s ease-in-out infinite;
+}
+
+.typing-dot:nth-child(2) { animation-delay: 0.2s; }
+.typing-dot:nth-child(3) { animation-delay: 0.4s; }
+
+@keyframes typingBounce {
+  0%, 80%, 100% { transform: translateY(0);   opacity: 0.35; }
+  40%           { transform: translateY(-6px); opacity: 1;   }
+}
+
+/* text area*/
+.input-area {
+  background: var(--bg-base);
+  border-top: 1px solid var(--border);
+  padding: 10px 20px 16px;
+  transition: background var(--transition);
+}
+
+/*anteprima allegati (sia lodato quel video*/
+.attachments-preview {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  max-width: 760px;
+  margin: 0 auto 8px;
+}
+
+.attachment-chip {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-full);
+  padding: 4px 10px 4px 6px;
+  font-size: 0.78rem;
+  color: var(--text-secondary);
+  max-width: 180px;
+}
+
+.attachment-chip img {
+  width: 24px;
+  height: 24px;
+  object-fit: cover;
+  border-radius: 4px;
+}
+
+.attachment-chip .chip-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  flex: 1;
+}
+
+.attachment-chip .chip-remove {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  font-size: 1rem;
+  line-height: 1;
+  padding: 0;
+  transition: color var(--transition);
+  flex-shrink: 0;
+}
+
+.attachment-chip .chip-remove:hover { color: #f87171; }
+
+/* contenitore della textarea(include anche i due tasti)*/
+.input-wrapper {
+  max-width: 760px;
+  margin: 0 auto;
+  display: flex;
+  align-items: flex-end;
+  gap: 8px;
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-xl);
+  padding: 8px 8px 8px 8px;
+  transition: border-color var(--transition), box-shadow var(--transition), background var(--transition);
+}
+
+.input-wrapper:focus-within {
+  border-color: var(--accent-solid);
+  box-shadow: var(--shadow-glow);
+}
+
+/*pulsante allegati*/
+.attach-btn {
+  background: linear-gradient(135deg, var(--accent-from), var(--accent-to));
+  border: none;
+  border-radius: 50%;
+  color: #fff;
+  width: 36px;
+  height: 36px;
+  min-width: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: opacity var(--transition), transform 0.15s ease, box-shadow var(--transition);
+  box-shadow: 0 2px 8px var(--accent-glow);
+  flex-shrink: 0;
+}
+
+.attach-btn:hover {
+  opacity: 0.88;
+  transform: scale(1.06);
+  box-shadow: 0 4px 16px var(--accent-glow);
+}
+
+/*textarea */
+.user-input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  outline: none;
+  color: var(--text-primary);
+  font-family: var(--font-sans);
+  font-size: 0.9rem;
+  line-height: 1.5;
+  resize: none;
+  max-height: 160px;
+  overflow-y: auto;
+  padding: 6px 0;
+  transition: color var(--transition);
+}
+
+.user-input::placeholder { color: var(--text-muted); }
+
+/*pulsante invia */
+.send-btn {
+  background: linear-gradient(135deg, var(--accent-from), var(--accent-to));
+  border: none;
+  border-radius: 50%;
+  color: #fff;
+  width: 36px;
+  height: 36px;
+  min-width: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: opacity var(--transition), transform 0.15s ease, box-shadow var(--transition);
+  box-shadow: 0 2px 8px var(--accent-glow);
+  flex-shrink: 0;
+}
+
+.send-btn:hover:not(:disabled) {
+  opacity: 0.88;
+  transform: scale(1.06);
+  box-shadow: 0 4px 16px var(--accent-glow);
+}
+
+.send-btn:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.input-disclaimer {
+  text-align: center;
+  font-size: 0.67rem;
+  color: var(--text-muted);
+  margin-top: 9px;
+  max-width: 760px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* riduce i padding su mobile(grazie youtube shorts) */
+@media (max-width: 600px) {
+  .welcome-screen { padding: 36px 20px 20px; }
+  .messages-list  { padding: 16px 16px 8px; }
+  .input-area     { padding: 8px 12px 12px; }
+}
